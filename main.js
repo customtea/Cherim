@@ -30,6 +30,20 @@ function is_linehead(){
     return nCurColumn == 1
 }
 
+if(!String.prototype.trim){
+	String.prototype.trim = function(){
+		return this.toString().replace(/^\s+|\s+$/g,'');
+	};
+	String.prototype.lTrim = function(){
+		return this.toString().replace(/^\s+/g,'');
+	};
+	String.prototype.rTrim = function(){
+		return this.toString().replace(/\s+$/g,'');
+	};
+};
+
+
+
 var nTabSize = Editor.ChangeTabWidth( 0 );
 var indentUnitSp = "";
 for (var i=0; i<nTabSize; i++) {
@@ -39,11 +53,13 @@ for (var i=0; i<nTabSize; i++) {
 function main(char){
     mode = GetMode()
 
-    if (mode != "i"){ Editor.Undo(); }
+    // if (mode != "i"){ Editor.Undo(); }
+    Editor.Undo();
 
     switch(mode){
         case "i":
             // Editor.InsText(char);
+            key_insert(char);
             break;
         case "n":
             key_normal(char);
@@ -79,13 +95,57 @@ function indentional_cr(){
     var indent = get_indent(line_str);
     Editor.InsText("\r");
     Editor.InsText(indent)
+
+	var isMarkdown = Editor.IsCurTypeExt("md");
+	if (isMarkdown == "1"){	
+		head_char = line_str.trim().substring(0, 1);
+		if (head_char ==  "-") {
+			InsText("- ")
+		};
+	}
 }
 
 function key_insert(char){
     switch (char){
-        case "\r": Editor.Char(13); break;
+        case "\r": indentional_cr(); break;
+        case "\t": Editor.InsText(indentUnitSp);
         default: Editor.InsText(char); break;
     }
+}
+
+function indent_space(){
+    Editor.InsText(indentUnitSp)
+}
+
+function unindent_space(){
+    if (is_linehead()){ return }
+    for (var i=0; i<nTabSize; i++) {
+        Editor.DeleteBack()
+    }
+}
+
+function md_indent_space(){
+    var line_str = editor.getlinestr(0);
+	var ismarkdown = editor.iscurtypeext("md");
+	if (ismarkdown == "1"){	
+		head_char = line_str.trim().substring(0, 1);
+		if (head_char ==  "-") {
+            editor.golinetop();
+            indent_space();
+		};
+	}
+}
+
+function md_unindent_space(){
+    var line_str = editor.getlinestr(0);
+	var ismarkdown = editor.iscurtypeext("md");
+	if (ismarkdown == "1"){	
+		head_char = line_str.trim().substring(0, 1);
+		if (head_char ==  "-") {
+            editor.golinetop();
+            unindent_space();
+		};
+	}
 }
 
 function key_normal(char){
@@ -135,6 +195,8 @@ function key_normal(char){
         case "7": SetMode("c"); AddCommandBuffer("7"); break;
         case "8": SetMode("c"); AddCommandBuffer("8"); break;
         case "9": SetMode("c"); AddCommandBuffer("9"); break;
+        case ">": indent_space(); break;
+        case "<": unindent_space(); break;
         default:
             //Editor.InfoMsg(char)
             Editor.InfoMsg(char.charCodeAt(0))
@@ -149,6 +211,8 @@ function select_mode(char){
         // case "k": Editor.Up_Sel(); break;
         // case "l": if (!is_lineend()){Editor.Right_Sel();}; break;
         case "y" : yank(); SetMode("n"); break;
+        case ">": Editor.IndentSpace(); SetMode("n"); break;
+        case "<": Editor.UnindentSpace(); SetMode("n"); break;
     }
 }
 
