@@ -20,7 +20,6 @@ function SetCommandBuffer(str_cmd){
 
 
 function is_lineend(){
-
     var nCurColumn = parseInt(Editor.ExpandParameter("$x"));
     var line = Editor.GetLineStr(0);
     return nCurColumn >= line.length -1
