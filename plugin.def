@@ -11,22 +11,24 @@ Url=https://github.com/customtea/cherim
 UseCache=1
 
 [Command]
-C[1]=keys/esc.js
-C[1].Label=key_esc
-C[2]=keys/h.js
-C[2].Label=key_h
-C[3]=keys/j.js
-C[3].Label=key_j
-C[4]=keys/k.js
-C[4].Label=key_k
-C[5]=keys/l.js
-C[5].Label=key_l
-C[6]=keys/y.js
-C[6].Label=key_y
-C[7]=keys/tab.js
-C[7].Label=key_tab
-C[8]=keys/s_tab.js
-C[8].Label=key_s_tab
+C[1]=keys/debug.js
+C[1].Label=debug
+C[2]=keys/esc.js
+C[2].Label=key_esc
+C[3]=keys/h.js
+C[3].Label=key_h
+C[4]=keys/j.js
+C[4].Label=key_j
+C[5]=keys/k.js
+C[5].Label=key_k
+C[6]=keys/l.js
+C[6].Label=key_l
+C[7]=keys/y.js
+C[7].Label=key_y
+C[8]=keys/tab.js
+C[8].Label=key_tab
+C[9]=keys/s_tab.js
+C[9].Label=key_s_tab
 
 
 [Plug]

@@ -20,6 +20,21 @@ function SetCommandBuffer(str_cmd){
     Editor.SetCookie("document", "CherimCmdBuf", str_cmd)
 }
 
+
+function GetSearchBuffer(){
+    return Editor.GetCookieDefault("document", "CherimSearchBuf", "")
+}
+
+function AddSearchBuffer(str_cmd){
+    cmd = Editor.GetCookieDefault("document", "CherimSearchBuf", "")
+    Editor.SetCookie("document", "CherimSearchBuf", cmd + str_cmd)
+    show_status();
+}
+
+function SetSearchBuffer(str_cmd){
+    Editor.SetCookie("document", "CherimSearchBuf", str_cmd)
+}
+
 function show_status(){
     var mode = GetMode();
     switch (mode){
@@ -27,6 +42,7 @@ function show_status(){
         case "n": Editor.StatusMsg("Normal"); break;
         case "c": var cmd = GetCommandBuffer(); Editor.StatusMsg(cmd); break;
         case "v": Editor.StatusMsg("Visual"); break;
+        case "s": var sbuf = GetSearchBuffer(); Editor.StatusMsg("/" + sbuf); break;
     }
 }
 
@@ -97,7 +113,8 @@ function main(char){
             break;
         case "v":
             select_mode(char);
-
+        case "s":
+            search_mode(char);
         default:
             break;
     }
@@ -213,7 +230,8 @@ function key_normal(char){
         //case "k": Editor.Up(); break;
         //case "l": if (!is_lineend()){Editor.Right();}; break;
         case "m": break;
-        case "n": break;
+        case "n": Editor.SearchNext("", 0x20); break;
+        case "N": Editor.SearchPrev("", 0x20); break;
         // case "o": Editor.GoLineEnd(0x08); Editor.InsText("\r"); break;
         case "o": Editor.GoLineEnd(0x08); indentional_cr(); SetMode("i"); break;
         case "O": Editor.GoLineTop(0x08); Editor.InsText("\r");Editor.Up(); SetMode("i"); break;
@@ -230,7 +248,7 @@ function key_normal(char){
         // case "y": SetMode("c"); AddCommandBuffer("y"); break;
         case "z": break;
         case ":": editor_cmd(); break;
-        case "/": SetMode("s"); break;
+        case "/": SetSearchBuffer(""); SetMode("s"); break;
         case "0": SetMode("c"); AddCommandBuffer("0"); break;
         case "1": SetMode("c"); AddCommandBuffer("1"); break;
         case "2": SetMode("c"); AddCommandBuffer("2"); break;
@@ -259,6 +277,20 @@ function select_mode(char){
         case "y" : yank(); SetMode("n"); break;
         case ">": Editor.IndentSpace(); SetMode("n"); break;
         case "<": Editor.UnindentSpace(); SetMode("n"); break;
+    }
+}
+
+function search_mode(char){
+    switch(char){
+        case "\r":
+            var stext = GetSearchBuffer();
+            Editor.SearchNext(stext, 0x20)
+            SetMode("n");
+            break;
+        default:
+            AddSearchBuffer(char);
+            show_status();
+            break;
     }
 }
 

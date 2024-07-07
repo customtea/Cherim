@@ -3,6 +3,9 @@ function SetMode(str_mode){ Editor.SetCookie("document", "CherimMode", str_mode)
 function GetCommandBuffer(){ return Editor.GetCookieDefault("document", "CherimCmdBuf", "") }
 function AddCommandBuffer(str_cmd){ cmd = Editor.GetCookieDefault("document", "CherimCmdBuf", ""); Editor.SetCookie("document", "CherimCmdBuf", cmd + str_cmd); }
 function SetCommandBuffer(str_cmd){ Editor.SetCookie("document", "CherimCmdBuf", str_cmd) }
+function GetSearchBuffer(){ return Editor.GetCookieDefault("document", "CherimSearchBuf", "") }
+function AddSearchBuffer(str_cmd){ cmd = Editor.GetCookieDefault("document", "CherimSearchBuf", ""); Editor.SetCookie("document", "CherimSearchBuf", cmd + str_cmd); show_status(); }
+function SetSearchBuffer(str_cmd){ Editor.SetCookie("document", "CherimSearchBuf", str_cmd) }
 function is_lineend(){ var nCurColumn = parseInt(Editor.ExpandParameter("$x")); var line = Editor.GetLineStr(0); return nCurColumn >= line.length -1 }
 function is_linehead(){ var nCurColumn = parseInt(Editor.ExpandParameter("$x")); return nCurColumn == 1 }
 function show_status(){
@@ -16,11 +19,14 @@ function show_status(){
 }
 
 (function(){
+    var key = "l"
     mode = GetMode()
     switch(mode){
-        case "i": Editor.InsText('h'); break;
+        case "i": Editor.InsText(key); break;
         case "n": if (!is_lineend()){Editor.Right();}; break;
         case "v": if (!is_lineend()){Editor.Right_Sel();}; break;
-        default: Editor.InsText('h'); break;
+        case "s": AddSearchBuffer(key); break;
+        default: Editor.InsText(key); break;
     }
+    show_status();
 })();
