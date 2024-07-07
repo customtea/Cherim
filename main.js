@@ -1,21 +1,33 @@
 function GetMode(){
-    return Editor.GetCookie("window", "CherimMode")
+    return Editor.GetCookie("document", "CherimMode")
 }
 function SetMode(str_mode){
-    Editor.SetCookie("window", "CherimMode", str_mode)
+    Editor.SetCookie("document", "CherimMode", str_mode);
+    show_status();
 }
 
 function GetCommandBuffer(){
-    return Editor.GetCookieDefault("window", "CherimCmdBuf", "")
+    return Editor.GetCookieDefault("document", "CherimCmdBuf", "")
 }
 
 function AddCommandBuffer(str_cmd){
-    cmd = Editor.GetCookieDefault("window", "CherimCmdBuf", "")
-    Editor.SetCookie("window", "CherimCmdBuf", cmd + str_cmd)
+    cmd = Editor.GetCookieDefault("document", "CherimCmdBuf", "")
+    Editor.SetCookie("document", "CherimCmdBuf", cmd + str_cmd)
+    show_status();
 }
 
 function SetCommandBuffer(str_cmd){
-    Editor.SetCookie("window", "CherimCmdBuf", str_cmd)
+    Editor.SetCookie("document", "CherimCmdBuf", str_cmd)
+}
+
+function show_status(){
+    var mode = GetMode();
+    switch (mode){
+        case "i": Editor.StatusMsg("Insert"); break;
+        case "n": Editor.StatusMsg("Normal"); break;
+        case "c": var cmd = GetCommandBuffer(); Editor.StatusMsg(cmd); break;
+        case "v": Editor.StatusMsg("Visual"); break;
+    }
 }
 
 
@@ -29,6 +41,21 @@ function is_linehead(){
     var nCurColumn = parseInt(Editor.ExpandParameter("$x"));
     return nCurColumn == 1
 }
+
+function cursor_insert(){
+    var is_ins_mode = Editor.IsInsMode()
+    if (is_ins_mode == "0"){
+        Editor.ChgmodINS()
+    }
+}
+
+function cursor_overwrite(){
+    var is_ins_mode = Editor.IsInsMode()
+    if (is_ins_mode == "1"){
+        Editor.ChgmodINS()
+    }
+}
+
 
 if(!String.prototype.trim){
 	String.prototype.trim = function(){
@@ -125,26 +152,44 @@ function unindent_space(){
 }
 
 function md_indent_space(){
-    var line_str = editor.getlinestr(0);
-	var ismarkdown = editor.iscurtypeext("md");
-	if (ismarkdown == "1"){	
-		head_char = line_str.trim().substring(0, 1);
-		if (head_char ==  "-") {
-            editor.golinetop();
+    var nCurLine = parseInt(Editor.ExpandParameter("$y"));
+    var nCurColumn = parseInt(Editor.ExpandParameter("$x"));
+	var isMarkdown = Editor.IsCurTypeExt("md");
+    var line_str = Editor.GetLineStr(0);
+	if (isMarkdown == "1"){	
+        var match = /^ *- /.exec(line_str)
+        if (match == null){
             indent_space();
-		};
+            return
+        }
+        var match_cur = match.index + match[0].length
+        var curdiff = nCurColumn - match_cur;
+        if (curdiff < 2){
+            Editor.GoLineTop();
+            indent_space();
+            var ccur = match_cur + curdiff + nTabSize;
+            Editor.MoveCursor(nCurLine, ccur, 0)
+        }else{
+            indent_space();
+        }
 	}
 }
 
 function md_unindent_space(){
-    var line_str = editor.getlinestr(0);
-	var ismarkdown = editor.iscurtypeext("md");
-	if (ismarkdown == "1"){	
-		head_char = line_str.trim().substring(0, 1);
-		if (head_char ==  "-") {
-            editor.golinetop();
+    var nCurColumn = parseInt(Editor.ExpandParameter("$x"));
+	var isMarkdown = Editor.IsCurTypeExt("md");
+    var line_str = Editor.GetLineStr(0);
+	if (isMarkdown == "1"){	
+        var match = /^ *- /.exec(line_str)
+        if (match == null){ return }
+        var match_cur = match.index + match[0].length
+        var curdiff = nCurColumn - match_cur;
+        if (curdiff < 2){
+            Editor.GoLineTop();
             unindent_space();
-		};
+            var ccur = match_cur + curdiff + nTabSize;
+            Editor.MoveCursor(nCurLine, ccur, 0)
+        }
 	}
 }
 
@@ -218,7 +263,7 @@ function select_mode(char){
 
 
 function editor_cmd(){
-    cmd = Editor.InputBox("CMD", "", 100);
+    cmd = Editor.InputBox("Vim Cmd", "", 30);
     switch (cmd){
         case "w": Editor.FileSave(); break;
         case "wq": Editor.FileSave(); Editor.WinClose(); break;

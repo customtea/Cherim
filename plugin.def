@@ -23,6 +23,10 @@ C[5]=keys/l.js
 C[5].Label=key_l
 C[6]=keys/y.js
 C[6].Label=key_y
+C[7]=keys/tab.js
+C[7].Label=key_tab
+C[8]=keys/s_tab.js
+C[8].Label=key_s_tab
 
 
 [Plug]
