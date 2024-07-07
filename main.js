@@ -92,7 +92,8 @@ function main(char){
             key_normal(char);
             break;
         case "c":
-            cmd_eval(char);
+            AddCommandBuffer(char);
+            cmd_eval();
             break;
         case "v":
             select_mode(char);
@@ -229,7 +230,7 @@ function key_normal(char){
         // case "y": SetMode("c"); AddCommandBuffer("y"); break;
         case "z": break;
         case ":": editor_cmd(); break;
-        case "/": break;
+        case "/": SetMode("s"); break;
         case "0": SetMode("c"); AddCommandBuffer("0"); break;
         case "1": SetMode("c"); AddCommandBuffer("1"); break;
         case "2": SetMode("c"); AddCommandBuffer("2"); break;
@@ -279,51 +280,55 @@ function yank(){
     return
 }
 */
-function cmd_eval(char){
+
+function move_line_head(){
+    var nCurLine = parseInt(Editor.ExpandParameter("$y"));
+    var line_str = Editor.GetLineStr(0);
+    var r = /^ */.exec(line_str)
+    var ccur = r.index + r[0].length + 1
+    Editor.MoveCursor(nCurLine, ccur, 0)
+}
+
+function cmd_eval(){
     cmd = GetCommandBuffer();
-    switch(char){
-        case "g":
-            if (cmd == "g"){
-                Editor.GoFileTop();
-                SetCommandBuffer("");
-                SetMode("n");
-            }else{
-                AddCommandBuffer(char);
-            }
+    switch(cmd){
+        case "gg":
+            Editor.GoFileTop();
+            SetCommandBuffer("");
+            SetMode("n");
             break;
-        case "d":
-            if (cmd == "d"){
-                Editor.CutLine();
-                SetCommandBuffer("");
-                SetMode("n");
-            }else{
-                AddCommandBuffer(char);
-            }
+        case "dd":
+            Editor.CutLine();
+            SetCommandBuffer("");
+            SetMode("n");
             break;
-        case "w":
-            if (cmd == "d"){
-                Editor.WordDelete();
-                SetCommandBuffer("");
-                SetMode("n");
-            }else{
-                AddCommandBuffer(char);
-            }
+        case "dw":
+            Editor.WordDelete();
+            SetCommandBuffer("");
+            SetMode("n");
+            break;
+
+        case /^[0-9][0-9]*gg/.test(cmd) && cmd:
+            r = /[0-9][0-9]*/.exec(cmd)
+            var nLine = parseInt(r[0])
+            Editor.MoveCursor(nLine, 1, 0)
+            move_line_head();
+            SetCommandBuffer("");
+            SetMode("n");
             break;
         /*
         case "y":
-            if (cmd == "y"){
-                Editor.SelectLine(0);
-                var sel_string = Editor.GetSelectedString(0);
-                Editor.SetClipboard(0x02, sel_string);
-                SetCommandBuffer("");
-                SetMode("n");
-            }else{
-                AddCommandBuffer(char);
-            }
+            Editor.SelectLine(0);
+            var sel_string = Editor.GetSelectedString(0);
+            Editor.SetClipboard(0x02, sel_string);
+            SetCommandBuffer("");
+            SetMode("n");
             break;
         */
+        default: break;
     }
 }
+
 
 (function(){
     Editor.CommitUndoBuffer();
