@@ -32,7 +32,7 @@ C[9].Label=key_s_tab
 
 
 [Plug]
-EditorStart=start.js
+DocumentOpen=start.js
 SmartIndent=main.js
 SmartIndent.Label=cherim
 

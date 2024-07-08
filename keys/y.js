@@ -15,6 +15,7 @@ function show_status(){
         case "n": Editor.StatusMsg("Normal"); break;
         case "c": var cmd = GetCommandBuffer(); Editor.StatusMsg(cmd); break;
         case "v": Editor.StatusMsg("Visual"); break;
+        case "s": var sbuf = GetSearchBuffer(); Editor.StatusMsg("/" + sbuf); break;
     }
 }
 

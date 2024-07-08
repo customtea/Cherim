@@ -1,3 +1,5 @@
+// Author="CustomTea"
+
 function GetMode(){
     return Editor.GetCookie("document", "CherimMode")
 }
@@ -73,6 +75,15 @@ function cursor_overwrite(){
 }
 
 
+function get_newline_code(){
+    var linecode = Editor.GetLineCode();
+    switch (linecode){
+        case 0 : return "\r\n"
+        case 1 : return "\r"
+        case 2 : return "\n"
+    }
+}
+
 if(!String.prototype.trim){
 	String.prototype.trim = function(){
 		return this.toString().replace(/^\s+|\s+$/g,'');
@@ -85,7 +96,7 @@ if(!String.prototype.trim){
 	};
 };
 
-
+var newline_code = get_newline_code();
 
 var nTabSize = Editor.ChangeTabWidth( 0 );
 var indentUnitSp = "";
@@ -138,7 +149,7 @@ function indentional_cr(){
     //var nCurColumn = parseInt(Editor.ExpandParameter("$x"));
     var line_str = Editor.GetLineStr(0);
     var indent = get_indent(line_str);
-    Editor.InsText("\r");
+    Editor.InsText(newline_code);
     Editor.InsText(indent)
 
 	var isMarkdown = Editor.IsCurTypeExt("md");
@@ -234,7 +245,7 @@ function key_normal(char){
         case "N": Editor.SearchPrev("", 0x20); break;
         // case "o": Editor.GoLineEnd(0x08); Editor.InsText("\r"); break;
         case "o": Editor.GoLineEnd(0x08); indentional_cr(); SetMode("i"); break;
-        case "O": Editor.GoLineTop(0x08); Editor.InsText("\r");Editor.Up(); SetMode("i"); break;
+        case "O": Editor.GoLineTop(0x08); Editor.InsText(newline_code); Editor.Up(); SetMode("i"); break;
         case "p": var clip = GetClipboard(0); Editor.InsText(clip); break;
         case "q": break;
         case "r": break;
@@ -246,7 +257,7 @@ function key_normal(char){
         case "w": Editor.WordRight(); break;
         case "x": Editor.Delete(); break;
         // case "y": SetMode("c"); AddCommandBuffer("y"); break;
-        case "z": break;
+        case "z": SetMode("c"); AddCommandBuffer("z"); break;
         case ":": editor_cmd(); break;
         case "/": SetSearchBuffer(""); SetMode("s"); break;
         case "0": SetMode("c"); AddCommandBuffer("0"); break;
@@ -263,7 +274,7 @@ function key_normal(char){
         case "<": unindent_space(); break;
         default:
             //Editor.InfoMsg(char)
-            Editor.InfoMsg(char.charCodeAt(0))
+            //Editor.InfoMsg(char.charCodeAt(0))
             break;
     }
 }
@@ -329,19 +340,32 @@ function cmd_eval(){
             SetCommandBuffer("");
             SetMode("n");
             break;
+
         case "dd":
             Editor.CutLine();
             SetCommandBuffer("");
             SetMode("n");
             break;
+
         case "dw":
             Editor.WordDelete();
             SetCommandBuffer("");
             SetMode("n");
             break;
 
+        case "zz":
+            Editor.CurLineCenter();
+            SetCommandBuffer("");
+            SetMode("n");
+            break;
+        
+        case "cw":
+            Editor.WordDelete();
+            SetCommandBuffer("");
+            SetMode("i");
+
         case /^[0-9][0-9]*gg/.test(cmd) && cmd:
-            r = /[0-9][0-9]*/.exec(cmd)
+            r = /^[0-9][0-9]*/.exec(cmd)
             var nLine = parseInt(r[0])
             Editor.MoveCursor(nLine, 1, 0)
             move_line_head();
@@ -357,7 +381,8 @@ function cmd_eval(){
             SetMode("n");
             break;
         */
-        default: break;
+        default:
+            return;
     }
 }
 
