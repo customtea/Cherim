@@ -22,10 +22,13 @@ function show_status(){
 
 
 (function(){
-    //Editor.InfoMsg("Cherim Startup Complete");
-    SetMode("n")
-    SetCommandBuffer("")
-    SetSearchBuffer("")
-    show_status()
+	var isMarkdown = Editor.IsCurTypeExt("md");
+	if (isMarkdown == "1"){	
+        //Editor.InfoMsg("Cherim Startup Complete");
+        SetMode("n")
+        SetCommandBuffer("")
+        SetSearchBuffer("")
+        show_status()
+    }
 })();
 
