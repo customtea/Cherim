@@ -21,15 +21,14 @@ function show_status(){
 }
 
 (function(){
-    var key = "k"
     mode = GetMode()
     switch(mode){
-        case "i": Editor.InsText(key); break;
-        case "n": Editor.Up(); break;
-        case "V": Editor.Up_Sel(); Editor.GoLineEnd_Sel(0x08); break;
-        case "v": Editor.Up_Sel(); break;
-        case "s": AddSearchBuffer(key); break;
-        default: Editor.InsText(key); break;
+        case "i": Editor.Paste(); break;
+        case "n": SetMode("v"); Editor.BeginBoxSelect(); break;
+        case "V": break;
+        case "v": CancelMode(); SetMode("n"); break;
+        case "s": var clip = GetClipboard(0); AddSearchBuffer(clip); break;
+        default: Editor.Paste(); break;
     }
     show_status();
 })();

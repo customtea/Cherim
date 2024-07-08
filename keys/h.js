@@ -14,6 +14,7 @@ function show_status(){
         case "i": Editor.StatusMsg("Insert"); break;
         case "n": Editor.StatusMsg("Normal"); break;
         case "c": var cmd = GetCommandBuffer(); Editor.StatusMsg(cmd); break;
+        case "V":
         case "v": Editor.StatusMsg("Visual"); break;
         case "s": var sbuf = GetSearchBuffer(); Editor.StatusMsg("/" + sbuf); break;
     }
@@ -25,6 +26,7 @@ function show_status(){
     switch(mode){
         case "i": Editor.InsText(key); break;
         case "n": if(!is_linehead()){Editor.Left();}; break;
+        case "V": break;
         case "v": if(!is_linehead()){Editor.Left_Sel();}; break;
         case "s": AddSearchBuffer(key); break;
         default: Editor.InsText(key); break;

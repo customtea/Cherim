@@ -43,6 +43,7 @@ function show_status(){
         case "i": Editor.StatusMsg("Insert"); break;
         case "n": Editor.StatusMsg("Normal"); break;
         case "c": var cmd = GetCommandBuffer(); Editor.StatusMsg(cmd); break;
+        case "V":
         case "v": Editor.StatusMsg("Visual"); break;
         case "s": var sbuf = GetSearchBuffer(); Editor.StatusMsg("/" + sbuf); break;
     }
@@ -123,6 +124,7 @@ function main(char){
             cmd_eval();
             break;
         case "v":
+        case "V":
             select_mode(char);
         case "s":
             search_mode(char);
@@ -267,14 +269,16 @@ function key_normal(char){
         // case "o": Editor.GoLineEnd(0x08); Editor.InsText("\r"); break;
         case "o": Editor.GoLineEnd(0x08); indentional_cr(); SetMode("i"); break;
         case "O": Editor.GoLineTop(0x08); Editor.InsText(newline_code); Editor.Up(); SetMode("i"); break;
-        case "p": var clip = GetClipboard(0); Editor.InsText(clip); break;
+        // case "p": var clip = GetClipboard(0); Editor.InsText(clip); break;
+        case "p": Editor.Paste(); break;
         case "q": break;
         case "r": break;
         case "s": break;
         case "t": break;
         case "u": Editor.Undo(); break;
         case "v": SetMode("v"); Editor.BeginSelect(); break;
-        case "V": SetMode("v"); Editor.BeginBoxSelect(); break;
+        case "V": SetMode("V"); select_line(); break;
+        //case "V": SetMode("v"); Editor.BeginBoxSelect(); break;
         case "w": Editor.WordRight(); break;
         case "x": Editor.Delete(); break;
         // case "y": SetMode("c"); AddCommandBuffer("y"); break;
@@ -306,10 +310,17 @@ function select_mode(char){
         // case "j": Editor.Down_Sel(); break;
         // case "k": Editor.Up_Sel(); break;
         // case "l": if (!is_lineend()){Editor.Right_Sel();}; break;
+        case "V" :
+        case "v" : CancelMode(); SetMode("n"); break;
         case "y" : yank(); SetMode("n"); break;
         case ">": Editor.IndentSpace(); SetMode("n"); break;
         case "<": Editor.UnindentSpace(); SetMode("n"); break;
     }
+}
+
+function select_line(){
+    Editor.GoLineTop()
+    Editor.GoLineEnd_Sel(0x08)
 }
 
 function search_mode(char){
@@ -389,6 +400,16 @@ function cmd_eval(){
                 }
                 Editor.SetUndoBuffer()
             }
+            SetCommandBuffer("");
+            SetMode("n");
+            break;
+        
+        case /^[0-9]*p/.test(cmd) && cmd:
+            Editor.AddRefUndoBuffer()
+            for (var i=0; i<cnum; i++) {
+                Editor.Paste();
+            }
+            Editor.SetUndoBuffer()
             SetCommandBuffer("");
             SetMode("n");
             break;

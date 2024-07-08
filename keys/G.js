@@ -20,14 +20,15 @@ function show_status(){
     }
 }
 
+
 (function(){
-    var key = "k"
+    var key = "G"
     mode = GetMode()
     switch(mode){
         case "i": Editor.InsText(key); break;
-        case "n": Editor.Up(); break;
-        case "V": Editor.Up_Sel(); Editor.GoLineEnd_Sel(0x08); break;
-        case "v": Editor.Up_Sel(); break;
+        case "n": Editor.GoFileEnd(); break;
+        case "V": Editor.GoFileEnd_Sel(); Editor.GoLineEnd_Sel(0x08); break;
+        case "v": Editor.GoFileEnd_Sel(); break;
         case "s": AddSearchBuffer(key); break;
         default: Editor.InsText(key); break;
     }

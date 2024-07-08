@@ -14,6 +14,7 @@ function show_status(){
         case "i": Editor.StatusMsg("Insert"); break;
         case "n": Editor.StatusMsg("Normal"); break;
         case "c": var cmd = GetCommandBuffer(); Editor.StatusMsg(cmd); break;
+        case "V":
         case "v": Editor.StatusMsg("Visual"); break;
         case "s": var sbuf = GetSearchBuffer(); Editor.StatusMsg("/" + sbuf); break;
     }
@@ -35,6 +36,7 @@ function yank(){
     switch(mode){
         case "i": Editor.InsText(key); break;
         case "n": SetMode("c"); AddCommandBuffer("y"); break;
+        case "V":
         case "v": yank(); break;
         case "s": AddSearchBuffer(key); break;
         case "c": 

@@ -20,16 +20,49 @@ function show_status(){
     }
 }
 
+
+
+var nTabSize = Editor.ChangeTabWidth(0);
+
+function unindent_space(){
+    if (is_linehead()){ return }
+    Editor.AddRefUndoBuffer()
+    for (var i=0; i<nTabSize; i++) {
+        Editor.DeleteBack()
+    }
+    Editor.SetUndoBuffer()
+}
+
+function md_unindent_space(){
+    var nCurLine = parseInt(Editor.ExpandParameter("$y"));
+    var nCurColumn = parseInt(Editor.ExpandParameter("$x"));
+	var isMarkdown = Editor.IsCurTypeExt("md");
+    var line_str = Editor.GetLineStr(0);
+	if (isMarkdown == "1"){	
+        var match = /^ *- /.exec(line_str)
+        if (match == null){ return }
+        var match_cur = match.index + match[0].length
+        var curdiff = nCurColumn - match_cur;
+        if (curdiff < 2){
+            Editor.GoLineTop();
+            unindent_space();
+            var ccur = match_cur + curdiff + nTabSize;
+            Editor.MoveCursor(nCurLine, ccur, 0)
+        }
+	}
+}
+
 (function(){
-    var key = "k"
     mode = GetMode()
     switch(mode){
-        case "i": Editor.InsText(key); break;
-        case "n": Editor.Up(); break;
-        case "V": Editor.Up_Sel(); Editor.GoLineEnd_Sel(0x08); break;
-        case "v": Editor.Up_Sel(); break;
-        case "s": AddSearchBuffer(key); break;
-        default: Editor.InsText(key); break;
+        case "i": md_unindent_space(); break;
+        case "n": break;
+        case "V": break;
+        case "v": break;
+        case "s": break;
+        default:  md_unindent_space(); break;
     }
-    show_status();
 })();
+
+
+
