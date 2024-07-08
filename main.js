@@ -175,10 +175,13 @@ function indent_space(){
 
 function unindent_space(){
     if (is_linehead()){ return }
+    Editor.AddRefUndoBuffer()
     for (var i=0; i<nTabSize; i++) {
         Editor.DeleteBack()
     }
+    Editor.SetUndoBuffer()
 }
+
 
 function md_indent_space(){
     var nCurLine = parseInt(Editor.ExpandParameter("$y"));
@@ -205,6 +208,7 @@ function md_indent_space(){
 }
 
 function md_unindent_space(){
+    var nCurLine = parseInt(Editor.ExpandParameter("$y"));
     var nCurColumn = parseInt(Editor.ExpandParameter("$x"));
 	var isMarkdown = Editor.IsCurTypeExt("md");
     var line_str = Editor.GetLineStr(0);
@@ -220,6 +224,23 @@ function md_unindent_space(){
             Editor.MoveCursor(nCurLine, ccur, 0)
         }
 	}
+}
+
+
+function force_indent_space(){
+    var nCurLine = parseInt(Editor.ExpandParameter("$y"));
+    var nCurColumn = parseInt(Editor.ExpandParameter("$x"));
+    Editor.GoLineTop();
+    indent_space();
+    Editor.MoveCursor(nCurLine, nCurColumn + nTabSize, 0)
+}
+
+function force_unindent_space(){
+    var nCurLine = parseInt(Editor.ExpandParameter("$y"));
+    var nCurColumn = parseInt(Editor.ExpandParameter("$x"));
+    Editor.GoLineTop();
+    unindent_space();
+    Editor.MoveCursor(nCurLine, nCurColumn - nTabSize, 0)
 }
 
 function key_normal(char){
@@ -258,7 +279,8 @@ function key_normal(char){
         case "x": Editor.Delete(); break;
         // case "y": SetMode("c"); AddCommandBuffer("y"); break;
         case "z": SetMode("c"); AddCommandBuffer("z"); break;
-        case ":": editor_cmd(); break;
+        //case ":": editor_cmd(); break;
+        case ":": SetMode("c"); AddCommandBuffer(":"); break;
         case "/": SetSearchBuffer(""); SetMode("s"); break;
         case "0": SetMode("c"); AddCommandBuffer("0"); break;
         case "1": SetMode("c"); AddCommandBuffer("1"); break;
@@ -270,8 +292,8 @@ function key_normal(char){
         case "7": SetMode("c"); AddCommandBuffer("7"); break;
         case "8": SetMode("c"); AddCommandBuffer("8"); break;
         case "9": SetMode("c"); AddCommandBuffer("9"); break;
-        case ">": indent_space(); break;
-        case "<": unindent_space(); break;
+        case ">": force_indent_space(); break;
+        case "<": force_unindent_space(); break;
         default:
             //Editor.InfoMsg(char)
             //Editor.InfoMsg(char.charCodeAt(0))
@@ -334,9 +356,16 @@ function move_line_head(){
 
 function cmd_eval(){
     cmd = GetCommandBuffer();
+    var cnum = /^[0-9][0-9]*/.exec(cmd)
+    if (cnum != null){ cnum = parseInt(cnum) }
     switch(cmd){
-        case "gg":
-            Editor.GoFileTop();
+        case /^[0-9]*gg/.test(cmd) && cmd:
+            if (cnum == null){
+                Editor.GoFileTop();
+            }else{
+                Editor.MoveCursor(cnum, 1, 0)
+                move_line_head();
+            }
             SetCommandBuffer("");
             SetMode("n");
             break;
@@ -363,15 +392,19 @@ function cmd_eval(){
             Editor.WordDelete();
             SetCommandBuffer("");
             SetMode("i");
-
-        case /^[0-9][0-9]*gg/.test(cmd) && cmd:
-            r = /^[0-9][0-9]*/.exec(cmd)
-            var nLine = parseInt(r[0])
-            Editor.MoveCursor(nLine, 1, 0)
-            move_line_head();
+            break;
+        
+        case ":w\r":
+            Editor.FileSave();
             SetCommandBuffer("");
             SetMode("n");
             break;
+
+        case ":wq\r":
+            Editor.FileSave();
+            Editor.WinClose();
+            break;
+
         /*
         case "y":
             Editor.SelectLine(0);
