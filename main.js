@@ -279,7 +279,6 @@ function key_normal(char){
         case "x": Editor.Delete(); break;
         // case "y": SetMode("c"); AddCommandBuffer("y"); break;
         case "z": SetMode("c"); AddCommandBuffer("z"); break;
-        //case ":": editor_cmd(); break;
         case ":": SetMode("c"); AddCommandBuffer(":"); break;
         case "/": SetSearchBuffer(""); SetMode("s"); break;
         case "0": SetMode("c"); AddCommandBuffer("0"); break;
@@ -328,13 +327,6 @@ function search_mode(char){
 }
 
 
-function editor_cmd(){
-    cmd = Editor.InputBox("Vim Cmd", "", 30);
-    switch (cmd){
-        case "w": Editor.FileSave(); break;
-        case "wq": Editor.FileSave(); Editor.WinClose(); break;
-    }
-}
 /*
 function yank(){
     var selmode = Editor.IsTextSelected();
@@ -359,6 +351,7 @@ function cmd_eval(){
     var cnum = /^[0-9][0-9]*/.exec(cmd)
     if (cnum != null){ cnum = parseInt(cnum) }
     switch(cmd){
+        case "gg":
         case /^[0-9]*gg/.test(cmd) && cmd:
             if (cnum == null){
                 Editor.GoFileTop();
@@ -371,13 +364,31 @@ function cmd_eval(){
             break;
 
         case "dd":
-            Editor.CutLine();
+        case /^[0-9]*dd/.test(cmd) && cmd:
+            if (cnum == null){
+                Editor.CutLine();
+            }else{
+                Editor.AddRefUndoBuffer()
+                for (var i=0; i<cnum; i++) {
+                    Editor.CutLine();
+                }
+                Editor.SetUndoBuffer()
+            }
             SetCommandBuffer("");
             SetMode("n");
             break;
 
         case "dw":
-            Editor.WordDelete();
+        case /^[0-9]*dw/.test(cmd) && cmd:
+            if (cnum == null){
+                Editor.WordCut();
+            }else{
+                Editor.AddRefUndoBuffer()
+                for (var i=0; i<cnum; i++) {
+                    Editor.WordCut();
+                }
+                Editor.SetUndoBuffer()
+            }
             SetCommandBuffer("");
             SetMode("n");
             break;
