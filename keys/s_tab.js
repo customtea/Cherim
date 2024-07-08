@@ -25,12 +25,15 @@ var nTabSize = Editor.ChangeTabWidth(0);
 
 function unindent_space(){
     if (is_linehead()){ return }
+    Editor.AddRefUndoBuffer()
     for (var i=0; i<nTabSize; i++) {
         Editor.DeleteBack()
     }
+    Editor.SetUndoBuffer()
 }
 
 function md_unindent_space(){
+    var nCurLine = parseInt(Editor.ExpandParameter("$y"));
     var nCurColumn = parseInt(Editor.ExpandParameter("$x"));
 	var isMarkdown = Editor.IsCurTypeExt("md");
     var line_str = Editor.GetLineStr(0);
