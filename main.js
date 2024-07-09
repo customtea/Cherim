@@ -251,7 +251,7 @@ function key_normal(char){
         case "a": if (!is_lineend()){ Editor.Right();}; SetMode("i"); break;
         case "A": Editor.GoLineEnd(0x08); SetMode("i"); break;
         case "b": Editor.WordLeft(); break;
-        case "c": break;
+        case "c": SetMode("c"); AddCommandBuffer("c"); break;
         case "d": SetMode("c"); AddCommandBuffer("d"); break;
         case "D": LineCutToEnd(); break;
         case "e": break;
@@ -421,7 +421,7 @@ function cmd_eval(){
             break;
         
         case "cw":
-            Editor.WordDelete();
+            Editor.WordCut();
             SetCommandBuffer("");
             SetMode("i");
             break;
