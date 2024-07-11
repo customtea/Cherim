@@ -63,7 +63,7 @@ function md_indent_space(){
         case "V": break;
         case "v": break;
         case "s": break;
-        default:  md_indent_space(); break;
+        default:  Editor.IndentTab(); break;
     }
 })();
 

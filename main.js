@@ -313,8 +313,8 @@ function select_mode(char){
         case "V" :
         case "v" : CancelMode(); SetMode("n"); break;
         case "y" : yank(); SetMode("n"); break;
-        case ">": Editor.IndentSpace(); SetMode("n"); break;
-        case "<": Editor.UnindentSpace(); SetMode("n"); break;
+        case ">": Editor.IndentTab(); SetMode("n"); break;
+        case "<": Editor.UnindentTab(); SetMode("n"); break;
     }
 }
 
