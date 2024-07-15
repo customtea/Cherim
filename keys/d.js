@@ -20,31 +20,47 @@ function show_status(){
     }
 }
 
-function select_line_up(){
-    var direct = Editor.GetCookie("document", "CherimSelectLine")
-    switch (direct){
-        case "N":
-            CancelMode(); Editor.GoLineEnd_Sel(0x08);
-            Editor.SetCookie("document", "CherimSelectLine", "U");
-        case "U":
-            Editor.Up_Sel(); Editor.GoLineTop_Sel(0x09);
-            break;
-        default:
-            Editor.Up_Sel(); Editor.GoLineEnd_Sel(0x08);
-    }
-}
 
 (function(){
-    var key = "k"
+    var key = "d"
     mode = GetMode()
     switch(mode){
         case "i": Editor.InsText(key); break;
-        case "n": Editor.Up(); break;
-        //case "V": Editor.Up_Sel(); Editor.GoLineEnd_Sel(0x08); break;
-        case "V": select_line_up(); break;
-        case "v": Editor.Up_Sel(); break;
+        case "n": SetMode("c"); AddCommandBuffer("d"); break;
+        case "c": AddCommandBuffer("d"); cmd_eval(); break;
+        case "V": 
+        case "v": Editor.Cut(); SetMode("n"); break;
         case "s": AddSearchBuffer(key); break;
         default: Editor.InsText(key); break;
     }
     show_status();
 })();
+
+function cmd_eval(){
+    cmd = GetCommandBuffer();
+    var cnum = /^[0-9][0-9]*/.exec(cmd)
+    if (cnum != null){ cnum = parseInt(cnum) }
+    switch(cmd){
+        case "dd":
+        case /^[0-9]*dd/.test(cmd) && cmd:
+            if (cnum == null){
+                Editor.CutLine();
+            }else{
+                Editor.GoLineTop(0x09)
+                Editor.GoLineEnd_Sel(0x08)
+                Editor.AddRefUndoBuffer()
+                for (var i=0; i<cnum; i++) {
+                    Editor.Down_Sel();
+                }
+                Editor.GoLineEnd_Sel(0x08);
+                Editor.Cut();
+                Editor.SetUndoBuffer()
+            }
+            SetCommandBuffer("");
+            SetMode("n");
+            break;
+
+        default:
+            return;
+    }
+}

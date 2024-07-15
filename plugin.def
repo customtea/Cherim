@@ -39,6 +39,10 @@ C[13]=keys/leftangle.js
 C[13].Label=Cherim_<
 C[14]=keys/rightangle.js
 C[14].Label=Cherim_>
+C[15]=keys/d.js
+C[15].Label=Cherim_d
+C[16]=keys/BkSp.js
+C[16].Label=Cherim_BkSp
 
 
 [Plug]

@@ -37,6 +37,56 @@ function SetSearchBuffer(str_cmd){
     Editor.SetCookie("document", "CherimSearchBuf", str_cmd)
 }
 
+
+function SetSelectPos(){
+    var sl = Editor.GetSelectLineFrom()
+    var sc = Editor.GetSelectColumnFrom()
+    var el = Editor.GetSelectLineTo()
+    var ec = Editor.GetSelectColumnTo()
+    var text = sc + "," + sl + "," + ec + "," + el
+    //Editor.InfoMsg("SetSelPos: " + text)
+    Editor.SetCookie("document", "CherimSelPos", text)
+}
+
+function ResetSelectPos(){
+    Editor.SetCookie("document", "CherimSelPos", "1,1,1,1")
+}
+
+function GetSelectPos(){
+    var res = Editor.GetCookieDefault("document", "CherimSelPos", "1,1,1,1")
+    var r = res.split(",")
+    var o = {
+        "sc" : r[0],
+        "sl" : r[1],
+        "ec" : r[2],
+        "el" : r[3]
+    }
+    return o
+}
+
+function SetSelctRange(st_col, st_line, ed_col, ed_line){
+    var nCurLine = parseInt(Editor.ExpandParameter("$y"));
+    var nCurColumn = parseInt(Editor.ExpandParameter("$x"));
+    //Editor.InfoMsg("SelectRange: " + sx + ", " + sy + ", " + ex + ", " + ey)
+    if (nCurLine == st_line){
+        if (nCurColumn == st_col){
+            Editor.MoveCursorLayout(ed_line, ed_col, 0);
+            Editor.MoveCursorLayout(st_line, ed_col, 1);
+        }else{
+            Editor.MoveCursorLayout(ed_line, ed_col, 0);
+            Editor.MoveCursorLayout(st_line, st_col, 1);
+        }
+    }else{
+        Editor.MoveCursorLayout(st_line, st_col, 0);
+        Editor.MoveCursorLayout(ed_line, ed_col, 1);
+    }
+}
+
+function RestoreSelect(){
+    var r = GetSelectPos()
+    SetSelctRange(r.sc, r.sl, r.ec, r.el)
+}
+
 function show_status(){
     var mode = GetMode();
     switch (mode){
@@ -334,16 +384,16 @@ function select_line(){
     }
     Editor.GoLineTop(0x09)
     Editor.GoLineEnd_Sel(0x08)
-    Editor.SetCookie("document", "SelectLine", "N");
+    Editor.SetCookie("document", "CherimSelectLine", "N");
 
 }
 
 function select_line_up(){
-    var direct = Editor.GetCookie("document", "SelectLine")
+    var direct = Editor.GetCookie("document", "CherimSelectLine")
     switch (direct){
         case "N":
             CancelMode(); Editor.GoLineEnd_Sel(0x08);
-            Editor.SetCookie("document", "SelectLine", "U");
+            Editor.SetCookie("document", "CherimSelectLine", "U");
         case "U":
             Editor.Up_Sel(); Editor.GoLineTop_Sel(0x09);
             break;
