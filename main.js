@@ -157,10 +157,13 @@ function indentional_cr(){
 
 	var isMarkdown = Editor.IsCurTypeExt("md");
 	if (isMarkdown == "1"){	
-		head_char = line_str.trim().substring(0, 1);
-		if (head_char ==  "-") { InsText("- "); return };
+        var match = /^ *- /.exec(line_str)
+        if (match != null){
+            InsText("- ");
+            return
+        }
         var r = /^ *([0-9][0-9]*) */.exec(line_str);
-        if (r == null){ return }else{
+        if (r != null){
             var num = parseInt(r[1]) + 1
             InsText(num + ". ");
             return;
@@ -399,7 +402,6 @@ function cmd_eval(){
             SetCommandBuffer("");
             SetMode("n");
             break;
-
         case "dd":
         case /^[0-9]*dd/.test(cmd) && cmd:
             if (cnum == null){
@@ -414,7 +416,6 @@ function cmd_eval(){
             SetCommandBuffer("");
             SetMode("n");
             break;
-
         case "dw":
         case /^[0-9]*dw/.test(cmd) && cmd:
             if (cnum == null){
