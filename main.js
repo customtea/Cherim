@@ -99,6 +99,7 @@ if(!String.prototype.trim){
 
 var newline_code = get_newline_code();
 
+var expandTab = Plugin.GetOption("Char", "expandtab")
 var nTabSize = Editor.ChangeTabWidth( 0 );
 var indentUnitSp = "";
 for (var i=0; i<nTabSize; i++) {

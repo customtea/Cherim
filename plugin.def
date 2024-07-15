@@ -47,7 +47,7 @@ SmartIndent=main.js
 SmartIndent.Label=cherim
 
 [Option]
-O[1].Section=Charactor
+O[1].Section=Char
 O[1].Key=expandtab
 O[1].Label=ExpandTab
 O[1].Type=Bool
