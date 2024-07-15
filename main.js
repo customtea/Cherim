@@ -471,7 +471,13 @@ function cmd_eval(){
             break;
         
         case "0\r":
-            move_cur_line_head()
+            Editor.GoLineTop(0x09);
+            SetCommandBuffer("");
+            SetMode("n");
+            break;
+
+        case "$\r":
+            Editor.GoLineEnd(0x08);
             SetCommandBuffer("");
             SetMode("n");
             break;

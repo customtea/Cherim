@@ -4,7 +4,7 @@ Name=Cherim
 Description=Sakura Editor wrap Vim (like) KeyBind
 Type=wsh
 Author=customtea
-Version=1.8.2
+Version=1.9.4
 Url=https://github.com/customtea/cherim
 
 [Wsh]

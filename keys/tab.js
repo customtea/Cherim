@@ -55,11 +55,18 @@ function md_indent_space(){
 	}
 }
 
+function move_cur_tab(){
+    var nCurLine = parseInt(Editor.ExpandParameter("$y"));
+    var nCurColumn = parseInt(Editor.ExpandParameter("$x"));
+    var ccur = nCurColumn + nTabSize
+    Editor.MoveCursor(nCurLine, ccur, 0)
+}
+
 (function(){
     mode = GetMode()
     switch(mode){
         case "i": md_indent_space(); break;
-        case "n": break;
+        case "n": move_cur_tab(); break;
         case "V": break;
         case "v": break;
         case "s": break;
