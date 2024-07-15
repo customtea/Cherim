@@ -158,9 +158,13 @@ function indentional_cr(){
 	var isMarkdown = Editor.IsCurTypeExt("md");
 	if (isMarkdown == "1"){	
 		head_char = line_str.trim().substring(0, 1);
-		if (head_char ==  "-") {
-			InsText("- ")
-		};
+		if (head_char ==  "-") { InsText("- "); return };
+        var r = /^ *([0-9][0-9]*) */.exec(line_str);
+        if (r == null){ return }else{
+            var num = parseInt(r[1]) + 1
+            InsText(num + ". ");
+            return;
+        }
 	}
 }
 
