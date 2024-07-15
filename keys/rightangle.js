@@ -20,31 +20,35 @@ function show_status(){
     }
 }
 
-function select_line_up(){
-    var direct = Editor.GetCookie("document", "SelectLine")
-    switch (direct){
-        case "N":
-            CancelMode(); Editor.GoLineEnd_Sel(0x08);
-            Editor.SetCookie("document", "SelectLine", "U");
-        case "U":
-            Editor.Up_Sel(); Editor.GoLineTop_Sel(0x09);
-            break;
-        default:
-            Editor.Up_Sel(); Editor.GoLineEnd_Sel(0x08);
-    }
+var nTabSize = Editor.ChangeTabWidth(0);
+var indentUnitSp = "";
+for (var i=0; i<nTabSize; i++) {
+    indentUnitSp += " ";
+}
+
+function indent_space(){
+    Editor.InsText(indentUnitSp)
+}
+
+function force_indent_space(){
+    var nCurLine = parseInt(Editor.ExpandParameter("$y"));
+    var nCurColumn = parseInt(Editor.ExpandParameter("$x"));
+    Editor.GoLineTop();
+    indent_space();
+    Editor.MoveCursor(nCurLine, nCurColumn + nTabSize, 0)
 }
 
 (function(){
-    var key = "k"
+    var key = ">"
     mode = GetMode()
     switch(mode){
         case "i": Editor.InsText(key); break;
-        case "n": Editor.Up(); break;
-        //case "V": Editor.Up_Sel(); Editor.GoLineEnd_Sel(0x08); break;
-        case "V": select_line_up(); break;
-        case "v": Editor.Up_Sel(); break;
+        case "n": force_indent_space(); break;
+        case "V": 
+        case "v": Editor.IndentTab(); SetMode("n"); break;
         case "s": AddSearchBuffer(key); break;
         default: Editor.InsText(key); break;
     }
     show_status();
 })();
+

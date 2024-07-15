@@ -35,6 +35,10 @@ C[11]=keys/C-v.js
 C[11].Label=Cherim_C-v
 C[12]=keys/C-r.js
 C[12].Label=Cherim_C-r
+C[13]=keys/leftangle.js
+C[13].Label=Cherim_<
+C[14]=keys/rightangle.js
+C[14].Label=Cherim_>
 
 
 [Plug]

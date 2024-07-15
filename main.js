@@ -295,8 +295,8 @@ function key_normal(char){
         case "7": SetMode("c"); AddCommandBuffer("7"); break;
         case "8": SetMode("c"); AddCommandBuffer("8"); break;
         case "9": SetMode("c"); AddCommandBuffer("9"); break;
-        case ">": force_indent_space(); break;
-        case "<": force_unindent_space(); break;
+        //case ">": force_indent_space(); break;
+        //case "<": force_unindent_space(); break;
         default:
             //Editor.InfoMsg(char)
             //Editor.InfoMsg(char.charCodeAt(0))
@@ -313,14 +313,35 @@ function select_mode(char){
         case "V" :
         case "v" : CancelMode(); SetMode("n"); break;
         case "y" : yank(); SetMode("n"); break;
-        case ">": Editor.IndentTab(); SetMode("n"); break;
-        case "<": Editor.UnindentTab(); SetMode("n"); break;
+        //case ">" : Editor.IndentTab(); SetMode("n"); break;
+        //case "<" : Editor.UnindentTab(); SetMode("n"); break;
     }
 }
 
 function select_line(){
-    Editor.GoLineTop()
+    text = Editor.GetLineStr(0)
+    if (text.length == 0){
+        SetMode("n")
+        return
+    }
+    Editor.GoLineTop(0x09)
     Editor.GoLineEnd_Sel(0x08)
+    Editor.SetCookie("document", "SelectLine", "N");
+
+}
+
+function select_line_up(){
+    var direct = Editor.GetCookie("document", "SelectLine")
+    switch (direct){
+        case "N":
+            CancelMode(); Editor.GoLineEnd_Sel(0x08);
+            Editor.SetCookie("document", "SelectLine", "U");
+        case "U":
+            Editor.Up_Sel(); Editor.GoLineTop_Sel(0x09);
+            break;
+        default:
+            Editor.Up_Sel(); Editor.GoLineEnd_Sel(0x08);
+    }
 }
 
 function search_mode(char){
@@ -349,7 +370,7 @@ function yank(){
 }
 */
 
-function move_line_head(){
+function move_cur_line_head(){
     var nCurLine = parseInt(Editor.ExpandParameter("$y"));
     var line_str = Editor.GetLineStr(0);
     var r = /^ */.exec(line_str)
@@ -368,7 +389,7 @@ function cmd_eval(){
                 Editor.GoFileTop();
             }else{
                 Editor.MoveCursor(cnum, 1, 0)
-                move_line_head();
+                move_cur_line_head();
             }
             SetCommandBuffer("");
             SetMode("n");
@@ -421,7 +442,7 @@ function cmd_eval(){
             break;
         
         case "cw":
-            Editor.WordCut();
+            Editor.WordDeleteToEnd();
             SetCommandBuffer("");
             SetMode("i");
             break;
@@ -431,11 +452,30 @@ function cmd_eval(){
             SetCommandBuffer("");
             SetMode("n");
             break;
-
+        
         case ":wq\r":
             Editor.FileSave();
             Editor.WinClose();
             break;
+        
+        case ":sp":
+            Editor.SplitWinV()
+            SetCommandBuffer("");
+            SetMode("n");
+            break;
+        
+        case ":vsp":
+            Editor.SplitWinH()
+            SetCommandBuffer("");
+            SetMode("n");
+            break;
+        
+        case "0\r":
+            move_cur_line_head()
+            SetCommandBuffer("");
+            SetMode("n");
+            break;
+
 
         /*
         case "y":

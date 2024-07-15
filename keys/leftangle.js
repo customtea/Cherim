@@ -20,31 +20,38 @@ function show_status(){
     }
 }
 
-function select_line_up(){
-    var direct = Editor.GetCookie("document", "SelectLine")
-    switch (direct){
-        case "N":
-            CancelMode(); Editor.GoLineEnd_Sel(0x08);
-            Editor.SetCookie("document", "SelectLine", "U");
-        case "U":
-            Editor.Up_Sel(); Editor.GoLineTop_Sel(0x09);
-            break;
-        default:
-            Editor.Up_Sel(); Editor.GoLineEnd_Sel(0x08);
+var nTabSize = Editor.ChangeTabWidth(0);
+
+function unindent_space(){
+    if (is_linehead()){ return }
+    Editor.AddRefUndoBuffer()
+    for (var i=0; i<nTabSize; i++) {
+        Editor.DeleteBack()
     }
+    Editor.SetUndoBuffer()
+}
+
+function force_unindent_space(){
+    var nCurLine = parseInt(Editor.ExpandParameter("$y"));
+    var nCurColumn = parseInt(Editor.ExpandParameter("$x"));
+    Editor.GoLineTop();
+    unindent_space();
+    Editor.MoveCursor(nCurLine, nCurColumn - nTabSize, 0)
 }
 
 (function(){
-    var key = "k"
+    var key = "<"
     mode = GetMode()
     switch(mode){
         case "i": Editor.InsText(key); break;
-        case "n": Editor.Up(); break;
-        //case "V": Editor.Up_Sel(); Editor.GoLineEnd_Sel(0x08); break;
-        case "V": select_line_up(); break;
-        case "v": Editor.Up_Sel(); break;
+        case "n": force_unindent_space(); break;
+        case "V": 
+        case "v": Editor.UnindentTab(); SetMode("n"); break;
         case "s": AddSearchBuffer(key); break;
         default: Editor.InsText(key); break;
     }
     show_status();
 })();
+
+
+
