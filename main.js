@@ -457,6 +457,10 @@ function cmd_eval(){
             Editor.FileSave();
             Editor.WinClose();
             break;
+
+        case ":q\r":
+            Editor.WinClose();
+            break;
         
         case ":sp":
             Editor.SplitWinV()

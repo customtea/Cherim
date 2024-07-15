@@ -46,3 +46,10 @@ DocumentOpen=start.js
 SmartIndent=main.js
 SmartIndent.Label=cherim
 
+[Option]
+O[1].Section=Charactor
+O[1].Key=expandtab
+O[1].Label=ExpandTab
+O[1].Type=Bool
+O[1].Default=1
+O[1].Select=OFF:0|ON:1
