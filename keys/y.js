@@ -21,6 +21,8 @@ function show_status(){
 }
 
 function yank(){
+    Editor.Copy();
+    return
     var selmode = Editor.IsTextSelected();
     if (selmode == "0"){ return }
     var sel_string = Editor.GetSelectedString(0);
@@ -37,14 +39,15 @@ function yank(){
         case "i": Editor.InsText(key); break;
         case "n": SetMode("c"); AddCommandBuffer("y"); break;
         case "V":
-        case "v": yank(); break;
+        case "v": yank(); Editor.CancelMode(); SetMode("n"); break;
         case "s": AddSearchBuffer(key); break;
         case "c": 
             cmd = GetCommandBuffer();
             if (cmd == "y"){
                 Editor.SelectLine(0);
                 var sel_string = Editor.GetSelectedString(0);
-                Editor.SetClipboard(0x00, sel_string);
+                // Editor.SetClipboard(0x00, sel_string);
+                Editor.Copy();
                 Editor.CancelMode();
                 // Editor.MoveHistPrev();
                 Editor.Up();

@@ -158,6 +158,7 @@ for (var i=0; i<nTabSize; i++) {
 
 function main(char){
     mode = GetMode()
+    show_status();
 
     // if (mode != "i"){ Editor.Undo(); }
     Editor.Undo();
@@ -229,8 +230,12 @@ function key_insert(char){
     }
 }
 
-function indent_space(){
-    Editor.InsText(indentUnitSp)
+function indent_auto(){
+    if (expandTab == "1"){
+        Editor.InsText(indentUnitSp)
+    }else{
+        Editor.InsText("\t")
+    }
 }
 
 function unindent_space(){
@@ -251,18 +256,18 @@ function md_indent_space(){
 	if (isMarkdown == "1"){	
         var match = /^ *- /.exec(line_str)
         if (match == null){
-            indent_space();
+            indent_auto();
             return
         }
         var match_cur = match.index + match[0].length
         var curdiff = nCurColumn - match_cur;
         if (curdiff < 2){
             Editor.GoLineTop();
-            indent_space();
+            indent_auto();
             var ccur = match_cur + curdiff + nTabSize;
             Editor.MoveCursor(nCurLine, ccur, 0)
         }else{
-            indent_space();
+            indent_auto();
         }
 	}
 }
@@ -291,7 +296,7 @@ function force_indent_space(){
     var nCurLine = parseInt(Editor.ExpandParameter("$y"));
     var nCurColumn = parseInt(Editor.ExpandParameter("$x"));
     Editor.GoLineTop();
-    indent_space();
+    indent_auto();
     Editor.MoveCursor(nCurLine, nCurColumn + nTabSize, 0)
 }
 
