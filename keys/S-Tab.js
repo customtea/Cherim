@@ -6,8 +6,8 @@ function SetCommandBuffer(str_cmd){ Editor.SetCookie("document", "CherimCmdBuf",
 function GetSearchBuffer(){ return Editor.GetCookieDefault("document", "CherimSearchBuf", "") }
 function AddSearchBuffer(str_cmd){ cmd = Editor.GetCookieDefault("document", "CherimSearchBuf", ""); Editor.SetCookie("document", "CherimSearchBuf", cmd + str_cmd); show_status(); }
 function SetSearchBuffer(str_cmd){ Editor.SetCookie("document", "CherimSearchBuf", str_cmd) }
-function is_lineend(){ var nCurColumn = parseInt(Editor.ExpandParameter("$x")); var line = Editor.GetLineStr(0); return nCurColumn >= line.length -1 }
-function is_linehead(){ var nCurColumn = parseInt(Editor.ExpandParameter("$x")); return nCurColumn == 1 }
+function ischeck_lineend(){ var nCurColumn = parseInt(Editor.ExpandParameter("$x")); var line = Editor.GetLineStr(0); return nCurColumn >= line.length -1 }
+function ischeck_linehead(){ var nCurColumn = parseInt(Editor.ExpandParameter("$x")); return nCurColumn == 1 }
 function show_status(){
     var mode = GetMode();
     switch (mode){
@@ -25,7 +25,7 @@ var expandTab = Plugin.GetOption("Char", "expandtab")
 var nTabSize = Editor.ChangeTabWidth(0);
 
 function unindent_auto(){
-    if (is_linehead()){ return }
+    if (ischeck_linehead()){ return }
     Editor.AddRefUndoBuffer()
     if (expandTab == "1"){
         for (var i=0; i<nTabSize; i++) {
@@ -38,26 +38,26 @@ function unindent_auto(){
 }
 
 function md_unindent(){
+	var isMarkdown = Editor.IsCurTypeExt("md");
+    if (isMarkdown == "0"){return};
     var nCurLine = parseInt(Editor.ExpandParameter("$y"));
     var nCurColumn = parseInt(Editor.ExpandParameter("$x"));
 	var isMarkdown = Editor.IsCurTypeExt("md");
     var line_str = Editor.GetLineStr(0);
-	if (isMarkdown == "1"){	
-        var match = /^[ \t]*- /.exec(line_str)
-        if (match == null){ return }
-        var match_cur = match.index + match[0].length
-        var curdiff = nCurColumn - match_cur;
-        if (curdiff < 2){
-            Editor.GoLineTop();
-            unindent_auto();
-            if (expandTab == "1"){
-                var ccur = match_cur + curdiff + nTabSize;
-            }else{
-                var ccur = match_cur + curdiff + 1;
-            }
-            Editor.MoveCursor(nCurLine, ccur, 0)
+    var match = /^[ \t]*- /.exec(line_str)
+    if (match == null){ return }
+    var match_cur = match.index + match[0].length
+    var curdiff = nCurColumn - match_cur;
+    if (curdiff < 2){
+        Editor.GoLineTop();
+        unindent_auto();
+        if (expandTab == "1"){
+            var ccur = match_cur + curdiff - nTabSize;
+        }else{
+            var ccur = match_cur + curdiff - 1;
         }
-	}
+        Editor.MoveCursor(nCurLine, ccur, 0)
+    }
 }
 
 function move_cur_untab(){

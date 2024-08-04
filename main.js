@@ -100,18 +100,18 @@ function show_status(){
 }
 
 
-function is_lineend(){
+function ischeck_lineend(){
     var nCurColumn = parseInt(Editor.ExpandParameter("$x"));
     var line = Editor.GetLineStr(0);
     return nCurColumn >= line.length -1
 }
 
-function is_linehead(){
+function ischeck_linehead(){
     var nCurColumn = parseInt(Editor.ExpandParameter("$x"));
     return nCurColumn == 1
 }
 
-function is_eof(){
+function ischeck_eof(){
     var line = Editor.GetLineStr(0);
     return line.length == 0
 }
@@ -244,7 +244,11 @@ function indent_auto(){
 }
 
 function unindent_auto(){
-    if (is_linehead()){ return }
+    if (ischeck_linehead()){ return }
+    var line_str = Editor.GetLineStr(0);
+    var nCurColumn = parseInt(Editor.ExpandParameter("$x"));
+    var char = line_str[nCurColumn]
+    Editor.InfoMsg(char)
     Editor.AddRefUndoBuffer()
     if (expandTab == "1"){
         for (var i=0; i<nTabSize; i++) {
@@ -258,54 +262,54 @@ function unindent_auto(){
 
 
 function md_indent(){
+	var isMarkdown = Editor.IsCurTypeExt("md");
+    if (isMarkdown == "0"){return};
     var nCurLine = parseInt(Editor.ExpandParameter("$y"));
     var nCurColumn = parseInt(Editor.ExpandParameter("$x"));
 	var isMarkdown = Editor.IsCurTypeExt("md");
     var line_str = Editor.GetLineStr(0);
-	if (isMarkdown == "1"){	
-        var match = /^[ \t]*- /.exec(line_str)
-        if (match == null){
-            indent_auto();
-            return
-        }
-        var match_cur = match.index + match[0].length
-        var curdiff = nCurColumn - match_cur;
-        if (curdiff < 2){
-            Editor.GoLineTop();
-            indent_auto();
-            if (expandTab == "1"){
-                var ccur = match_cur + curdiff + nTabSize;
-            }else{
-                var ccur = match_cur + curdiff + 1;
-            }
-            Editor.MoveCursor(nCurLine, ccur, 0)
+    var match = /^[ \t]*- /.exec(line_str)
+    if (match == null){
+        indent_auto();
+        return
+    }
+    var match_cur = match.index + match[0].length
+    var curdiff = nCurColumn - match_cur;
+    if (curdiff < 2){
+        Editor.GoLineTop();
+        indent_auto();
+        if (expandTab == "1"){
+            var ccur = match_cur + curdiff + nTabSize;
         }else{
-            indent_auto();
+            var ccur = match_cur + curdiff + 1;
         }
-	}
+        Editor.MoveCursor(nCurLine, ccur, 0)
+    }else{
+        indent_auto();
+    }
 }
 
 function md_unindent(){
+	var isMarkdown = Editor.IsCurTypeExt("md");
+    if (isMarkdown == "0"){return};
     var nCurLine = parseInt(Editor.ExpandParameter("$y"));
     var nCurColumn = parseInt(Editor.ExpandParameter("$x"));
 	var isMarkdown = Editor.IsCurTypeExt("md");
     var line_str = Editor.GetLineStr(0);
-	if (isMarkdown == "1"){	
-        var match = /^[ \t]*- /.exec(line_str)
-        if (match == null){ return }
-        var match_cur = match.index + match[0].length
-        var curdiff = nCurColumn - match_cur;
-        if (curdiff < 2){
-            Editor.GoLineTop();
-            unindent_auto();
-            if (expandTab == "1"){
-                var ccur = match_cur + curdiff + nTabSize;
-            }else{
-                var ccur = match_cur + curdiff + 1;
-            }
-            Editor.MoveCursor(nCurLine, ccur, 0)
+    var match = /^[ \t]*- /.exec(line_str)
+    if (match == null){ return }
+    var match_cur = match.index + match[0].length
+    var curdiff = nCurColumn - match_cur;
+    if (curdiff < 2){
+        Editor.GoLineTop();
+        unindent_auto();
+        if (expandTab == "1"){
+            var ccur = match_cur + curdiff - nTabSize;
+        }else{
+            var ccur = match_cur + curdiff - 1;
         }
-	}
+        Editor.MoveCursor(nCurLine, ccur, 0)
+    }
 }
 
 
@@ -328,7 +332,7 @@ function force_unindent(){
 function key_normal(char){
     switch(char){
         case "\r": break;
-        case "a": if (!is_lineend()){ Editor.Right();}; SetMode("i"); break;
+        case "a": if (!ischeck_lineend()){ Editor.Right();}; SetMode("i"); break;
         case "A": Editor.GoLineEnd(0x08); SetMode("i"); break;
         case "b": Editor.WordLeft(); break;
         case "c": SetMode("c"); AddCommandBuffer("c"); break;
@@ -347,7 +351,7 @@ function key_normal(char){
         case "n": Editor.SearchNext("", 0x20); break;
         case "N": Editor.SearchPrev("", 0x20); break;
         // case "o": Editor.GoLineEnd(0x08); Editor.InsText("\r"); break;
-        case "o": if(!is_eof()){Editor.GoLineEnd(0x08);} indentional_cr(); SetMode("i"); break;
+        case "o": if(!ischeck_eof()){Editor.GoLineEnd(0x08);} indentional_cr(); SetMode("i"); break;
         case "O": Editor.GoLineTop(0x08); Editor.InsText(newline_code); Editor.Up(); SetMode("i"); break;
         // case "p": var clip = GetClipboard(0); Editor.InsText(clip); break;
         case "p": Editor.Paste(); break;
@@ -400,7 +404,7 @@ function select_mode(char){
 }
 
 function select_line(){
-    if (is_eof()){
+    if (ischeck_eof()){
         SetMode("n")
         return
     }
