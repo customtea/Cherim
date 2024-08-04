@@ -46,8 +46,8 @@ function yank(){
             if (cmd == "y"){
                 Editor.SelectLine(0);
                 var sel_string = Editor.GetSelectedString(0);
-                // Editor.SetClipboard(0x00, sel_string);
-                Editor.Copy();
+                Editor.SetClipboard(0x02, sel_string);
+                // Editor.Copy();
                 Editor.CancelMode();
                 // Editor.MoveHistPrev();
                 Editor.Up();
