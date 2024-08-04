@@ -111,6 +111,11 @@ function is_linehead(){
     return nCurColumn == 1
 }
 
+function is_eof(){
+    var line = Editor.GetLineStr(0);
+    return line.length == 0
+}
+
 function cursor_insert(){
     var is_ins_mode = Editor.IsInsMode()
     if (is_ins_mode == "0"){
@@ -225,7 +230,7 @@ function indentional_cr(){
 function key_insert(char){
     switch (char){
         case "\r": indentional_cr(); break;
-        case "\t": Editor.InsText(indentUnitSp);
+        case "\t": if(expandTab == "1"){Editor.InsText(indentUnitSp)}else{Editor.InsText("\t")};
         default: Editor.InsText(char); break;
     }
 }
@@ -330,10 +335,11 @@ function key_normal(char){
         case "n": Editor.SearchNext("", 0x20); break;
         case "N": Editor.SearchPrev("", 0x20); break;
         // case "o": Editor.GoLineEnd(0x08); Editor.InsText("\r"); break;
-        case "o": Editor.GoLineEnd(0x08); indentional_cr(); SetMode("i"); break;
+        case "o": if(!is_eof()){Editor.GoLineEnd(0x08);} indentional_cr(); SetMode("i"); break;
         case "O": Editor.GoLineTop(0x08); Editor.InsText(newline_code); Editor.Up(); SetMode("i"); break;
         // case "p": var clip = GetClipboard(0); Editor.InsText(clip); break;
         case "p": Editor.Paste(); break;
+        case "P": Editor.Up(); Editor.Paste(); break;
         case "q": break;
         case "r": break;
         case "s": break;
@@ -382,8 +388,7 @@ function select_mode(char){
 }
 
 function select_line(){
-    text = Editor.GetLineStr(0)
-    if (text.length == 0){
+    if (is_eof()){
         SetMode("n")
         return
     }

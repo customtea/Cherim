@@ -43,6 +43,8 @@ C[15]=keys/d.js
 C[15].Label=Cherim_d
 C[16]=keys/BkSp.js
 C[16].Label=Cherim_BkSp
+C[17]=keys/fstart.js
+C[17].Label=Cherim_ForceStart
 
 
 [Plug]
