@@ -20,21 +20,26 @@ function show_status(){
     }
 }
 
+var expandTab = Plugin.GetOption("Char", "expandtab")
 var nTabSize = Editor.ChangeTabWidth(0);
 var indentUnitSp = "";
 for (var i=0; i<nTabSize; i++) {
     indentUnitSp += " ";
 }
 
-function indent_space(){
-    Editor.InsText(indentUnitSp)
+function indent_auto(){
+    if (expandTab == "1"){
+        Editor.InsText(indentUnitSp)
+    }else{
+        Editor.InsText("\t")
+    }
 }
 
 function force_indent_space(){
     var nCurLine = parseInt(Editor.ExpandParameter("$y"));
     var nCurColumn = parseInt(Editor.ExpandParameter("$x"));
     Editor.GoLineTop();
-    indent_space();
+    indent_auto();
     Editor.MoveCursor(nCurLine, nCurColumn + nTabSize, 0)
 }
 

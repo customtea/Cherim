@@ -20,12 +20,17 @@ function show_status(){
     }
 }
 
+var expandTab = Plugin.GetOption("Char", "expandtab")
 var nTabSize = Editor.ChangeTabWidth(0);
 
-function unindent_space(){
+function unindent_auto(){
     if (is_linehead()){ return }
     Editor.AddRefUndoBuffer()
-    for (var i=0; i<nTabSize; i++) {
+    if (expandTab == "1"){
+        for (var i=0; i<nTabSize; i++) {
+            Editor.DeleteBack()
+        }
+    }else{
         Editor.DeleteBack()
     }
     Editor.SetUndoBuffer()
@@ -37,12 +42,12 @@ function md_bksp_expandtab(){
 	var isMarkdown = Editor.IsCurTypeExt("md");
     var line_str = Editor.GetLineStr(0);
 	if (isMarkdown == "1"){	
-        var match = /^ */.exec(line_str)
+        var match = /^[ \t]*/.exec(line_str)
         if (match == null){ Editor.DeleteBack(); }
         var match_cur = match.index + match[0].length
         var curdiff = nCurColumn - match_cur;
         if (curdiff < 2){
-            unindent_space();
+            unindent_auto();
         }
 	}else{
         Editor.DeleteBack();

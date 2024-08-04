@@ -20,12 +20,17 @@ function show_status(){
     }
 }
 
+var expandTab = Plugin.GetOption("Char", "expandtab")
 var nTabSize = Editor.ChangeTabWidth(0);
 
-function unindent_space(){
+function unindent_auto(){
     if (is_linehead()){ return }
     Editor.AddRefUndoBuffer()
-    for (var i=0; i<nTabSize; i++) {
+    if (expandTab == "1"){
+        for (var i=0; i<nTabSize; i++) {
+            Editor.DeleteBack()
+        }
+    }else{
         Editor.DeleteBack()
     }
     Editor.SetUndoBuffer()
@@ -35,7 +40,7 @@ function force_unindent_space(){
     var nCurLine = parseInt(Editor.ExpandParameter("$y"));
     var nCurColumn = parseInt(Editor.ExpandParameter("$x"));
     Editor.GoLineTop();
-    unindent_space();
+    unindent_auto();
     Editor.MoveCursor(nCurLine, nCurColumn - nTabSize, 0)
 }
 

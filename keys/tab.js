@@ -21,36 +21,45 @@ function show_status(){
 }
 
 
+var expandTab = Plugin.GetOption("Char", "expandtab")
 var nTabSize = Editor.ChangeTabWidth(0);
 var indentUnitSp = "";
 for (var i=0; i<nTabSize; i++) {
     indentUnitSp += " ";
 }
 
-function indent_space(){
-    Editor.InsText(indentUnitSp)
+function indent_auto(){
+    if (expandTab == "1"){
+        Editor.InsText(indentUnitSp)
+    }else{
+        Editor.InsText("\t")
+    }
 }
 
-function md_indent_space(){
+function md_indent(){
     var nCurLine = parseInt(Editor.ExpandParameter("$y"));
     var nCurColumn = parseInt(Editor.ExpandParameter("$x"));
 	var isMarkdown = Editor.IsCurTypeExt("md");
     var line_str = Editor.GetLineStr(0);
 	if (isMarkdown == "1"){	
-        var match = /^ *- /.exec(line_str)
+        var match = /^[ \t]*- /.exec(line_str)
         if (match == null){
-            indent_space();
+            indent_auto();
             return
         }
         var match_cur = match.index + match[0].length
         var curdiff = nCurColumn - match_cur;
         if (curdiff < 2){
             Editor.GoLineTop();
-            indent_space();
-            var ccur = match_cur + curdiff + nTabSize;
+            indent_auto();
+            if (expandTab == "1"){
+                var ccur = match_cur + curdiff + nTabSize;
+            }else{
+                var ccur = match_cur + curdiff + 1;
+            }
             Editor.MoveCursor(nCurLine, ccur, 0)
         }else{
-            indent_space();
+            indent_auto();
         }
 	}
 }
@@ -65,7 +74,7 @@ function move_cur_tab(){
 (function(){
     mode = GetMode()
     switch(mode){
-        case "i": md_indent_space(); break;
+        case "i": md_indent(); break;
         case "n": move_cur_tab(); break;
         case "V": break;
         case "v": break;

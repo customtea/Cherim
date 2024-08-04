@@ -21,32 +21,40 @@ function show_status(){
 }
 
 
-
+var expandTab = Plugin.GetOption("Char", "expandtab")
 var nTabSize = Editor.ChangeTabWidth(0);
 
-function unindent_space(){
+function unindent_auto(){
     if (is_linehead()){ return }
     Editor.AddRefUndoBuffer()
-    for (var i=0; i<nTabSize; i++) {
+    if (expandTab == "1"){
+        for (var i=0; i<nTabSize; i++) {
+            Editor.DeleteBack()
+        }
+    }else{
         Editor.DeleteBack()
     }
     Editor.SetUndoBuffer()
 }
 
-function md_unindent_space(){
+function md_unindent(){
     var nCurLine = parseInt(Editor.ExpandParameter("$y"));
     var nCurColumn = parseInt(Editor.ExpandParameter("$x"));
 	var isMarkdown = Editor.IsCurTypeExt("md");
     var line_str = Editor.GetLineStr(0);
 	if (isMarkdown == "1"){	
-        var match = /^ *- /.exec(line_str)
+        var match = /^[ \t]*- /.exec(line_str)
         if (match == null){ return }
         var match_cur = match.index + match[0].length
         var curdiff = nCurColumn - match_cur;
         if (curdiff < 2){
             Editor.GoLineTop();
-            unindent_space();
-            var ccur = match_cur + curdiff + nTabSize;
+            unindent_auto();
+            if (expandTab == "1"){
+                var ccur = match_cur + curdiff + nTabSize;
+            }else{
+                var ccur = match_cur + curdiff + 1;
+            }
             Editor.MoveCursor(nCurLine, ccur, 0)
         }
 	}
@@ -62,7 +70,7 @@ function move_cur_untab(){
 (function(){
     mode = GetMode()
     switch(mode){
-        case "i": md_unindent_space(); break;
+        case "i": md_unindent(); break;
         case "n": move_cur_untab(); break;
         case "V": break;
         case "v": break;

@@ -213,12 +213,12 @@ function indentional_cr(){
 
 	var isMarkdown = Editor.IsCurTypeExt("md");
 	if (isMarkdown == "1"){	
-        var match = /^ *- /.exec(line_str)
+        var match = /^[ \t]*- /.exec(line_str)
         if (match != null){
             InsText("- ");
             return
         }
-        var r = /^ *([0-9][0-9]*) */.exec(line_str);
+        var r = /^[ \t]*([0-9][0-9]*) */.exec(line_str);
         if (r != null){
             var num = parseInt(r[1]) + 1
             InsText(num + ". ");
@@ -243,23 +243,27 @@ function indent_auto(){
     }
 }
 
-function unindent_space(){
+function unindent_auto(){
     if (is_linehead()){ return }
     Editor.AddRefUndoBuffer()
-    for (var i=0; i<nTabSize; i++) {
+    if (expandTab == "1"){
+        for (var i=0; i<nTabSize; i++) {
+            Editor.DeleteBack()
+        }
+    }else{
         Editor.DeleteBack()
     }
     Editor.SetUndoBuffer()
 }
 
 
-function md_indent_space(){
+function md_indent(){
     var nCurLine = parseInt(Editor.ExpandParameter("$y"));
     var nCurColumn = parseInt(Editor.ExpandParameter("$x"));
 	var isMarkdown = Editor.IsCurTypeExt("md");
     var line_str = Editor.GetLineStr(0);
 	if (isMarkdown == "1"){	
-        var match = /^ *- /.exec(line_str)
+        var match = /^[ \t]*- /.exec(line_str)
         if (match == null){
             indent_auto();
             return
@@ -269,7 +273,11 @@ function md_indent_space(){
         if (curdiff < 2){
             Editor.GoLineTop();
             indent_auto();
-            var ccur = match_cur + curdiff + nTabSize;
+            if (expandTab == "1"){
+                var ccur = match_cur + curdiff + nTabSize;
+            }else{
+                var ccur = match_cur + curdiff + 1;
+            }
             Editor.MoveCursor(nCurLine, ccur, 0)
         }else{
             indent_auto();
@@ -277,27 +285,31 @@ function md_indent_space(){
 	}
 }
 
-function md_unindent_space(){
+function md_unindent(){
     var nCurLine = parseInt(Editor.ExpandParameter("$y"));
     var nCurColumn = parseInt(Editor.ExpandParameter("$x"));
 	var isMarkdown = Editor.IsCurTypeExt("md");
     var line_str = Editor.GetLineStr(0);
 	if (isMarkdown == "1"){	
-        var match = /^ *- /.exec(line_str)
+        var match = /^[ \t]*- /.exec(line_str)
         if (match == null){ return }
         var match_cur = match.index + match[0].length
         var curdiff = nCurColumn - match_cur;
         if (curdiff < 2){
             Editor.GoLineTop();
-            unindent_space();
-            var ccur = match_cur + curdiff + nTabSize;
+            unindent_auto();
+            if (expandTab == "1"){
+                var ccur = match_cur + curdiff + nTabSize;
+            }else{
+                var ccur = match_cur + curdiff + 1;
+            }
             Editor.MoveCursor(nCurLine, ccur, 0)
         }
 	}
 }
 
 
-function force_indent_space(){
+function force_indent(){
     var nCurLine = parseInt(Editor.ExpandParameter("$y"));
     var nCurColumn = parseInt(Editor.ExpandParameter("$x"));
     Editor.GoLineTop();
@@ -305,11 +317,11 @@ function force_indent_space(){
     Editor.MoveCursor(nCurLine, nCurColumn + nTabSize, 0)
 }
 
-function force_unindent_space(){
+function force_unindent(){
     var nCurLine = parseInt(Editor.ExpandParameter("$y"));
     var nCurColumn = parseInt(Editor.ExpandParameter("$x"));
     Editor.GoLineTop();
-    unindent_space();
+    unindent_auto();
     Editor.MoveCursor(nCurLine, nCurColumn - nTabSize, 0)
 }
 
@@ -441,7 +453,7 @@ function yank(){
 function move_cur_line_head(){
     var nCurLine = parseInt(Editor.ExpandParameter("$y"));
     var line_str = Editor.GetLineStr(0);
-    var r = /^ */.exec(line_str)
+    var r = /^[ \t]*/.exec(line_str)
     var ccur = r.index + r[0].length + 1
     Editor.MoveCursor(nCurLine, ccur, 0)
 }
