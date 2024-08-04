@@ -20,12 +20,41 @@ function show_status(){
     }
 }
 
+var nTabSize = Editor.ChangeTabWidth(0);
+
+function unindent_space(){
+    if (is_linehead()){ return }
+    Editor.AddRefUndoBuffer()
+    for (var i=0; i<nTabSize; i++) {
+        Editor.DeleteBack()
+    }
+    Editor.SetUndoBuffer()
+}
+
+function md_bksp_expandtab(){
+    var nCurLine = parseInt(Editor.ExpandParameter("$y"));
+    var nCurColumn = parseInt(Editor.ExpandParameter("$x"));
+	var isMarkdown = Editor.IsCurTypeExt("md");
+    var line_str = Editor.GetLineStr(0);
+	if (isMarkdown == "1"){	
+        var match = /^ */.exec(line_str)
+        if (match == null){ Editor.DeleteBack(); }
+        var match_cur = match.index + match[0].length
+        var curdiff = nCurColumn - match_cur;
+        if (curdiff < 2){
+            unindent_space();
+        }
+	}else{
+        Editor.DeleteBack();
+    }
+}
 
 
 (function(){
     mode = GetMode()
     switch(mode){
-        case "i": Editor.DeleteBack(); break;
+        // case "i": Editor.DeleteBack(); break;
+        case "i": md_bksp_expandtab(); break;
         case "n": if(!is_linehead()){Editor.Left();}; break;
         case "c": var stext = GetCommandBuffer(); SetCommandBuffer(stext.substring(0, stext.length -1)); break;
         case "V": 
