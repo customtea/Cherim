@@ -190,7 +190,7 @@ function main(char){
     }
 }
 
-function get_indent(line_str){
+function get_indent_space(line_str){
     line_str = line_str.replace(/[\r\n]/g, "");
 	line_str = line_str.replace(/\t/g, indentUnitSp);
     // line_str = line_str.replace(/[^ */]/g, "")
@@ -198,8 +198,8 @@ function get_indent(line_str){
     return prev_indent
 }
 
-function get_indent_size(line_str){
-    var indent = get_indent(line_str);
+function get_indent_spacesize(line_str){
+    var indent = get_indent_space(line_str);
     return indent.length
 }
 
@@ -207,9 +207,19 @@ function indentional_cr(){
     //var nCurLine = parseInt(Editor.ExpandParameter("$y"));
     //var nCurColumn = parseInt(Editor.ExpandParameter("$x"));
     var line_str = Editor.GetLineStr(0);
-    var indent = get_indent(line_str);
+    var indent = get_indent_space(line_str);
     Editor.InsText(newline_code);
-    Editor.InsText(indent)
+    if (expandTab == 1){
+        Editor.InsText(indent)
+    }else{
+        var indsize = indent.length
+        var tabcount = indsize / nTabSize
+        var tabtext = ""
+        for (var i=0; i<tabcount; i++) {
+            tabtext += "\t"
+        }
+        Editor.InsText(tabtext)
+    }
 
 	var isMarkdown = Editor.IsCurTypeExt("md");
 	if (isMarkdown == "1"){	
